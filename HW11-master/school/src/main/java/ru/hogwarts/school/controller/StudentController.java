@@ -5,10 +5,11 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/api/students")
 public class StudentController {
 
     private final StudentService studentService;
@@ -47,6 +48,7 @@ public class StudentController {
     public List<Student> getStudentsByAge(@RequestParam int age) {
         return studentService.getStudentsByAge(age);
     }
+
     @GetMapping("/between-age")
     public List<Student> getStudentsByAgeRange(
             @RequestParam int min,
@@ -54,13 +56,25 @@ public class StudentController {
     ) {
         return studentService.getStudentsByAgeBetween(min, max);
     }
+
     @GetMapping("/{id}/faculty")
     public Faculty getStudentFaculty(@PathVariable Long id) {
         Student student = studentService.getStudent(id);
-        if (student == null) {
-            throw new RuntimeException("Student not found");
-        }
         return student.getFaculty();
     }
 
+    @GetMapping("/count")
+    public long getStudentsCount() {
+        return studentService.getStudentsCount();
+    }
+
+    @GetMapping("/average-age")
+    public double getAverageStudentAge() {
+        return studentService.getAverageStudentAge();
+    }
+
+    @GetMapping("/last-five")
+    public List<Student> getLastFiveStudents() {
+        return studentService.getLastFiveStudents();
+    }
 }
