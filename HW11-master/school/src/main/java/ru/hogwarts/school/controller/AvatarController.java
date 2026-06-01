@@ -1,11 +1,13 @@
 package ru.hogwarts.school.controller;
 
-import ru.hogwarts.school.model.Avatar;
-import ru.hogwarts.school.service.AvatarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.hogwarts.school.model.Avatar;
+import ru.hogwarts.school.service.AvatarService;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,5 +56,14 @@ public class AvatarController {
         return ResponseEntity.ok()
                 .header("Content-Type", avatar.getMediaType())
                 .body(fileData);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<Avatar>> getAllAvatars(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<Avatar> avatarsPage = avatarService.getAllAvatars(page, size);
+        return ResponseEntity.ok(avatarsPage);
     }
 }
