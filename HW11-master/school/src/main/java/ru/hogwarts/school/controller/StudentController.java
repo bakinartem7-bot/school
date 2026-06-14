@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/api/students")
@@ -76,5 +79,49 @@ public class StudentController {
     @GetMapping("/last-five")
     public List<Student> getLastFiveStudents() {
         return studentService.getLastFiveStudents();
+    }
+
+    @GetMapping("/names-starting-with-a")
+    public List<String> getNamesStartingWithA() {
+        return studentService.getAllStudents()
+                .stream()
+                .map(student -> student.getName().toUpperCase())
+                .filter(name -> name.startsWith("A"))
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/average-age-all")
+    public double getAverageAgeOfAllStudents() {
+        return studentService.getAllStudents()
+                .stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0);
+    }
+
+    @GetMapping("/longest-faculty-name")
+    public String getLongestFacultyName() {
+        return studentService.getAllStudents()
+                .stream()
+                .map(Student::getFaculty)
+                .map(Faculty::getName)
+                .max(Comparator.comparingInt(String::length))
+                .orElse("");
+    }
+
+    @GetMapping("/optimized-sum")
+    public long getOptimizedSum() {
+        long n = 1_000_000L;
+        long first = 1L;
+        long last = n;
+        return n * (first + last) / 2L;
+    }
+
+    @GetMapping("/parallel-sum")
+    public long getParallelSum() {
+        return IntStream.rangeClosed(1, 1_000_000)
+                .parallel()
+                .sum();
     }
 }
