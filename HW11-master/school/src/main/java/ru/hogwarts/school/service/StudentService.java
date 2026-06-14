@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 import org.slf4j.Logger;
@@ -7,8 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class StudentService {
@@ -38,7 +42,7 @@ public class StudentService {
 
         Optional<Student> studentOptional = studentRepository.findById(id);
         if (!studentOptional.isPresent()) {
-            logger.error("Студент с ID = " + id + " не найден");
+            logger.error("Студент с ID = {} не найден", id);
             throw new RuntimeException("Студент не найден с ID: " + id);
         }
 
@@ -82,7 +86,7 @@ public class StudentService {
         logger.debug("Удаляется студент с ID: {}", id);
 
         if (!studentRepository.existsById(id)) {
-            logger.error("Невозможно удалить студента — студент с ID = " + id + " не существует");
+            logger.error("Невозможно удалить студента — студент с ID = {} не существует", id);
             throw new RuntimeException("Студент не найден для удаления с ID: " + id);
         }
 
@@ -134,5 +138,76 @@ public class StudentService {
         List<Student> students = studentRepository.findLastFiveStudents();
         logger.debug("Получено {} студентов (последние 5)", students.size());
         return students;
+    }
+
+    public List<String> getNamesStartingWithA() {
+        logger.info("Был вызван метод для получения имён студентов, начинающихся с 'A'");
+        logger.debug("Фильтруются имена студентов, начинающиеся с 'A', переводятся в верхний регистр и сортируются");
+
+
+        List<String> names = studentRepository.findAll()
+                .stream()
+                .map(Student::getName)
+                .map(String::toUpperCase)
+                .filter(name -> name.startsWith("A"))
+                .sorted()
+                .collect(Collectors.toList());
+
+        logger.debug("Найдено {} имён, начинающихся с 'A'", names.size());
+        return names;
+    }
+
+    public double getAverageAgeOfAllStudents() {
+        logger.info("Был вызван метод для получения среднего возраста всех студентов");
+        logger.debug("Рассчитывается средний возраст всех студентов через Stream API");
+
+        double averageAge = studentRepository.findAll()
+                .stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0);
+
+        logger.debug("Средний возраст всех студентов рассчитан: {}", averageAge);
+        return averageAge;
+    }
+
+    public String getLongestFacultyName() {
+        logger.info("Был вызван метод для получения самого длинного названия факультета");
+        logger.debug("Ищем самое длинное название факультета среди всех студентов");
+
+        String longestName = studentRepository.findAll()
+                .stream()
+                .map(Student::getFaculty)
+                .map(Faculty::getName)
+                .max(Comparator.comparingInt(String::length))
+                .orElse("");
+
+        logger.debug("Самое длинное название факультета: '{}'", longestName);
+        return longestName;
+    }
+
+    public long getParallelSum() {
+        logger.info("Был вызван метод для вычисления суммы через параллельный поток");
+        logger.debug("Вычисляется сумма чисел от 1 до 1 000 000 через параллельный поток");
+
+        long sum = IntStream.rangeClosed(1, 1_000_000)
+                .parallel()
+                .sum();
+
+        logger.debug("Сумма, вычисленная через параллельный поток: {}", sum);
+        return sum;
+    }
+
+
+    public long getOptimizedSum() {
+        logger.info("Был вызван метод для вычисления оптимизированной суммы");
+        logger.debug("Вычисляется сумма чисел от 1 до 1 000 000 математической формулой");
+
+
+        long n = 1_000_000L;
+        long sum = n * (n + 1) / 2;
+
+        logger.debug("Вычислинная сумма: {}", sum);
+        return sum;
     }
 }

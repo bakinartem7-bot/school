@@ -7,9 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Comparator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/api/students")
@@ -55,8 +52,7 @@ public class StudentController {
     @GetMapping("/between-age")
     public List<Student> getStudentsByAgeRange(
             @RequestParam int min,
-            @RequestParam int max
-    ) {
+            @RequestParam int max) {
         return studentService.getStudentsByAgeBetween(min, max);
     }
 
@@ -83,45 +79,26 @@ public class StudentController {
 
     @GetMapping("/names-starting-with-a")
     public List<String> getNamesStartingWithA() {
-        return studentService.getAllStudents()
-                .stream()
-                .map(student -> student.getName().toUpperCase())
-                .filter(name -> name.startsWith("A"))
-                .sorted()
-                .collect(Collectors.toList());
+        return studentService.getNamesStartingWithA();
     }
 
     @GetMapping("/average-age-all")
     public double getAverageAgeOfAllStudents() {
-        return studentService.getAllStudents()
-                .stream()
-                .mapToInt(Student::getAge)
-                .average()
-                .orElse(0);
+        return studentService.getAverageAgeOfAllStudents();
     }
 
     @GetMapping("/longest-faculty-name")
     public String getLongestFacultyName() {
-        return studentService.getAllStudents()
-                .stream()
-                .map(Student::getFaculty)
-                .map(Faculty::getName)
-                .max(Comparator.comparingInt(String::length))
-                .orElse("");
+        return studentService.getLongestFacultyName();
     }
 
     @GetMapping("/optimized-sum")
     public long getOptimizedSum() {
-        long n = 1_000_000L;
-        long first = 1L;
-        long last = n;
-        return n * (first + last) / 2L;
+        return studentService.getOptimizedSum();
     }
 
     @GetMapping("/parallel-sum")
     public long getParallelSum() {
-        return IntStream.rangeClosed(1, 1_000_000)
-                .parallel()
-                .sum();
+        return studentService.getParallelSum();
     }
 }
