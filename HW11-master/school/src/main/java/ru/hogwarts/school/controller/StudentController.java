@@ -161,4 +161,3 @@ public class StudentController {
         System.out.println(name);
     }
 }
-
