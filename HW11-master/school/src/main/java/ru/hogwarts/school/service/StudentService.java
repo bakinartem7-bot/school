@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
@@ -198,16 +199,109 @@ public class StudentService {
         return sum;
     }
 
-
     public long getOptimizedSum() {
         logger.info("Был вызван метод для вычисления оптимизированной суммы");
         logger.debug("Вычисляется сумма чисел от 1 до 1 000 000 математической формулой");
-
 
         long n = 1_000_000L;
         long sum = n * (n + 1) / 2;
 
         logger.debug("Вычислинная сумма: {}", sum);
         return sum;
+    }
+
+    public void printStudentsParallel() {
+        logger.info("Был вызван метод для вывода студентов в параллельном режиме");
+
+        List<String> studentNames = getAllStudents().stream()
+                .map(Student::getName)
+                .collect(Collectors.toList());
+
+        if (studentNames.size() < 6) {
+            logger.warn("Для выполнения операции требуется минимум 6 студентов. Текущее количество: {}", studentNames.size());
+            throw new RuntimeException("Для выполнения операции требуется минимум 6 студентов");
+        }
+
+        logger.debug("Получено {} студентов для вывода в параллельном режиме", studentNames.size());
+
+        System.out.println("Основной поток: " + studentNames.get(0));
+        System.out.println("Основной поток: " + studentNames.get(1));
+
+        Thread thread1 = new Thread(() -> {
+            logger.debug("Поток 1 начал выполнение");
+            System.out.println("Поток 1: " + studentNames.get(2));
+            System.out.println("Поток 1: " + studentNames.get(3));
+            logger.debug("Поток 1 завершил выполнение");
+        });
+
+        Thread thread2 = new Thread(() -> {
+            logger.debug("Поток 2 начал выполнение");
+            System.out.println("Поток 2: " + studentNames.get(4));
+            System.out.println("Поток 2: " + studentNames.get(5));
+            logger.debug("Поток 2 завершил выполнение");
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+            logger.debug("Все потоки завершили выполнение в параллельном режиме");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Потоки были прерваны в параллельном режиме: {}", e.getMessage());
+            System.err.println("Потоки были прерваны: " + e.getMessage());
+        }
+    }
+
+    public void printStudentsSynchronized() {
+        logger.info("Был вызван метод для вывода студентов в синхронизированном режиме");
+
+        List<String> studentNames = getAllStudents().stream()
+                .map(Student::getName)
+                .collect(Collectors.toList());
+
+        if (studentNames.size() < 6) {
+            logger.warn("Для выполнения операции требуется минимум 6 студентов. Текущее количество: {}", studentNames.size());
+            throw new RuntimeException("Для выполнения операции требуется минимум 6 студентов");
+        }
+
+        logger.debug("Получено {} студентов для вывода в синхронизированном режиме", studentNames.size());
+
+        printName("Основной поток: " + studentNames.get(0));
+        printName("Основной поток: " + studentNames.get(1));
+
+        Thread thread1 = new Thread(() -> {
+            logger.debug("Поток 1 начал выполнение в синхронизированном режиме");
+            printName("Поток 1: " + studentNames.get(2));
+            printName("Поток 1: " + studentNames.get(3));
+            logger.debug("Поток 1 завершил выполнение в синхронизированном режиме");
+        });
+
+        Thread thread2 = new Thread(() -> {
+            logger.debug("Поток 2 начал выполнение в синхронизированном режиме");
+            printName("Поток 2: " + studentNames.get(4));
+            printName("Поток 2: " + studentNames.get(5));
+            logger.debug("Поток 2 завершил выполнение в синхронизированном режиме");
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+            logger.debug("Все потоки завершили выполнение в синхронизированном режиме");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Потоки были прерваны в синхронизированном режиме: {}", e.getMessage());
+            System.err.println("Потоки были прерваны: " + e.getMessage());
+        }
+    }
+
+    private synchronized void printName(String name) {
+        logger.trace("Поток {} выводит: {}", Thread.currentThread().getName(), name);
+        System.out.println(name);
     }
 }
