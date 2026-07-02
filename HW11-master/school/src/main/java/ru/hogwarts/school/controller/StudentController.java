@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/students")
@@ -52,8 +53,7 @@ public class StudentController {
     @GetMapping("/between-age")
     public List<Student> getStudentsByAgeRange(
             @RequestParam int min,
-            @RequestParam int max
-    ) {
+            @RequestParam int max) {
         return studentService.getStudentsByAgeBetween(min, max);
     }
 
@@ -76,5 +76,30 @@ public class StudentController {
     @GetMapping("/last-five")
     public List<Student> getLastFiveStudents() {
         return studentService.getLastFiveStudents();
+    }
+
+    @GetMapping("/names-starting-with-a")
+    public List<String> getNamesStartingWithA() {
+        return studentService.getNamesStartingWithA();
+    }
+
+    @GetMapping("/average-age-all")
+    public double getAverageAgeOfAllStudents() {
+        return studentService.getAverageAgeOfAllStudents();
+    }
+
+    @GetMapping("/longest-faculty-name")
+    public String getLongestFacultyName() {
+        return studentService.getLongestFacultyName();
+    }
+
+    @GetMapping("/optimized-sum")
+    public long getOptimizedSum() {
+        return studentService.getOptimizedSum();
+    }
+
+    @GetMapping("/parallel-sum")
+    public long getParallelSum() {
+        return studentService.getParallelSum();
     }
 }
